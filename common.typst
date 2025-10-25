@@ -1,0 +1,114 @@
+#import "@preview/zebraw:0.5.5": *
+#import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
+#import "@preview/booktabs:0.0.4": *
+#import "@preview/marginalia:0.2.3" as marginalia: note, notefigure, wideblock
+
+#let diagram = diagram.with(label-size: .7em, node-inset: 1em)
+
+#let note = note.with(
+  numbering: (..i) => text(weight: "bold", size: 7pt, numbering("1.", ..i)),
+  anchor-numbering: (.., i) => super[#i],
+  text-style: (size: 9pt)
+)
+#let notefigure = notefigure.with()
+
+#let okay = [#h(1fr)#box(
+  text("OK✓", size: 7pt, fill: luma(10%), font: "Fira Code", weight: "medium"),
+  fill: luma(100%),
+  outset: .25em,
+  radius: .3em,
+  stroke: luma(10%) + .66pt,
+)#h(.5em)]
+
+#let example = [#box(
+  text("EX", size: 7pt, fill: luma(10%), font: "Fira Code", weight: "medium"),
+  fill: luma(100%),
+  outset: .25em,
+  radius: .3em,
+  stroke: luma(10%) + .66pt,
+)#h(.5em)]
+
+#let maketitle(title: str, course: str, author: str, date: str) = [
+  #v(1fr)
+  #align(center,
+  [
+    #set text(size: 12pt)
+    #course#v(-3mm)
+    #set text(size: 30pt, weight: "medium")
+    #title#v(-3mm)
+    #set text(size: 12pt, weight: "regular")
+    #author — #date
+  ])
+  #v(2fr)
+]
+
+// This function takes the document content and applies all styling
+#let setup_style(title: "", author: "", doc) = {
+  show: zebraw.with(numbering-separator: true, inset: (left: 1em))
+  show: booktabs-default-table-style
+  show: marginalia.setup.with(
+    outer: ( far: 15mm, width: 40mm, sep: 10mm ),
+    inner: (far: 10mm, width: 10mm),
+  )
+
+  show figure.caption.where(position: bottom): note.with(alignment: "top", anchor-numbering: none, numbering: none, shift: "yes", keep-order: true)
+
+  set text(lang: "en")
+  set par(justify: true)
+  set enum(spacing: 1em)
+  show enum: set block(inset: (y: .5em))
+  set par(first-line-indent: 1em)
+  set text(font: "Fira Sans", size: 10pt)
+  show raw: set text(10pt, font: "Fira Code")
+  show math.equation: set text(font: "Fira Math")
+  show figure.caption: it => {
+    show raw: set text(size: 9pt)
+    it
+  }
+
+  set heading(numbering: "1.", supplement: "Section")
+  show heading.where(level: 1): set block(below: 1em, above: 2em)
+  show heading.where(level: 1): set text(size: 20pt, weight: 500)
+  show heading.where(level: 2): set block(below: 1em, above: 2em)
+  show heading.where(level: 2): set text(size: 12pt, weight: "regular", style: "italic")
+
+  show heading.where(level: 3): set heading(numbering: none)
+  show heading.where(level: 3): set block(below: 1em, above: 2em)
+  show heading.where(level: 3): set text(size: 11pt, weight: "light", style: "italic")
+
+  show heading.where(level: 4): set block(below: 0.5em, above: 1.5em)
+  show heading.where(level: 4): set heading(numbering: none)
+
+  show heading: it => {
+    counter(math.equation).update(0)
+    it
+  }
+  set math.equation(numbering: num =>
+    "(" + (counter(heading.where(level: 1)).get() + (num,)).map(str).join(".") + ")")
+
+  show raw.where(block: true): set text(8pt)
+  set raw(theme: none)
+  show figure.where(kind: raw): set figure(supplement: [Listing])
+  show figure.caption: set text(size: 9pt)
+  show line: set block(above: 0.5em)
+
+  set enum(numbering: "1.")
+  set list(marker: "—")
+  show table: set text(size: 8pt)
+
+  set page(header: context if here().page() > 1 {
+    marginalia.header(title, author)
+  },
+  footer: context marginalia.header([#h(1fr) #counter(page).display(
+    "1 / 1",
+    both: true,
+  ) #h(1fr)], []))
+
+  show heading.where(level: 1): it => [
+    #pagebreak()
+    #v(7cm)
+    #it
+  ]
+
+  doc
+}

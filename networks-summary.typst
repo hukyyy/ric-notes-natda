@@ -1,0 +1,14 @@
+#import "common.typst": *
+
+#let title = [Notes: Networks, a \ Top-Down Approach]
+#let course = "Réseaux, Information, et Communications — INFO-F303"
+#let author = "Elliot Huet"
+
+#show: setup_style.with(title: [Notes: Networks, a Top-Down Approach], author: author)
+
+#maketitle(title: title, course: course, author: author, date: datetime.today().display("[day]/[month]/[year]"))
+
+#outline()
+
+#include("sections/1-introduction.typst")
+#include("sections/2-application-layer.typst")
