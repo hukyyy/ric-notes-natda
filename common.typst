@@ -10,7 +10,6 @@
   anchor-numbering: (.., i) => super[#i],
   text-style: (size: 9pt)
 )
-#let notefigure = notefigure.with()
 
 #let okay = [#h(1fr)#box(
   text("OK✓", size: 7pt, fill: luma(10%), font: "Fira Code", weight: "medium"),
@@ -51,7 +50,19 @@
     inner: (far: 10mm, width: 10mm),
   )
 
+  show figure.caption: it => context {
+    show raw: set text(size: 9pt)
+    // Style the "Figure X:" or "Table X:" part to match marginalia notes
+    let styled_supplement = text(
+      weight: "bold",
+      size: 7pt,
+      smallcaps(it.supplement) + " " + it.counter.display() + ":"
+    )
+    [#styled_supplement #it.body]
+  }
+
   show figure.caption.where(position: bottom): note.with(alignment: "top", anchor-numbering: none, numbering: none, shift: "yes", keep-order: true)
+
 
   set text(lang: "en")
   set par(justify: true)
@@ -91,6 +102,8 @@
   show figure.where(kind: raw): set figure(supplement: [Listing])
   show figure.caption: set text(size: 9pt)
   show line: set block(above: 0.5em)
+
+
 
   set enum(numbering: "1.")
   set list(marker: "—")
